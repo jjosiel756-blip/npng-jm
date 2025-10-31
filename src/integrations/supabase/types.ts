@@ -277,31 +277,40 @@ export type Database = {
       }
       workouts: {
         Row: {
+          category: string | null
           created_at: string
           description: string | null
           difficulty: string | null
           duration_minutes: number | null
+          estimated_calories: number | null
+          exercises_data: Json | null
           id: string
           name: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
+          category?: string | null
           created_at?: string
           description?: string | null
           difficulty?: string | null
           duration_minutes?: number | null
+          estimated_calories?: number | null
+          exercises_data?: Json | null
           id?: string
           name: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
+          category?: string | null
           created_at?: string
           description?: string | null
           difficulty?: string | null
           duration_minutes?: number | null
+          estimated_calories?: number | null
+          exercises_data?: Json | null
           id?: string
           name?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
