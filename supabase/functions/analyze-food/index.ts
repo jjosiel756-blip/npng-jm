@@ -160,9 +160,10 @@ serve(async (req) => {
   }
 
   try {
-    const { imageData } = await req.json();
+    const { imageData, imageBase64 } = await req.json();
+    const image = imageData || imageBase64;
     
-    if (!imageData) {
+    if (!image) {
       return new Response(
         JSON.stringify({ error: "Imagem não fornecida" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -181,7 +182,7 @@ serve(async (req) => {
     console.log("Iniciando análise de imagem com IA...");
 
     // Preparar imagem para a API (remover prefixo data:image se presente)
-    const base64Image = imageData.replace(/^data:image\/[a-z]+;base64,/, "");
+    const base64Image = image.replace(/^data:image\/[a-z]+;base64,/, "");
 
     // Chamar Lovable AI com Gemini Vision para análise de alimentos
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -396,13 +397,42 @@ Retorne APENAS um JSON válido no seguinte formato:
     
     const hasEstimated = enrichedFoods.some((f: any) => f.isEstimated);
 
+    // Calcular confiança média
+    const avgConfidence = enrichedFoods.reduce((sum: number, f: any) => {
+      const confidence = f.confidence === 'alta' ? 0.9 : f.confidence === 'média' ? 0.7 : 0.5;
+      return sum + confidence;
+    }, 0) / enrichedFoods.length;
+
+    // Formatar resposta no padrão esperado pelo componente
     const result = {
-      success: true,
-      foods: enrichedFoods,
-      totals,
+      status: 'sucesso',
+      analise: {
+        alimentos: enrichedFoods.map((food: any) => ({
+          name: food.name,
+          quantity: food.portion || `${food.portionGrams}g`,
+          confidence: food.confidence === 'alta' ? 0.9 : food.confidence === 'média' ? 0.7 : 0.5,
+          nutrition: {
+            calories: food.calories || 0,
+            protein: food.protein || 0,
+            carbs: food.carbs || 0,
+            fat: food.fat || 0,
+          },
+          source: food.source || 'Estimativa'
+        })),
+        total_refeicao: {
+          calories: totals.calories,
+          protein: totals.protein,
+          carbs: totals.carbs,
+          fat: totals.fat,
+        },
+        metadados: {
+          timestamp: new Date().toISOString(),
+          fontes_utilizadas: [...new Set(enrichedFoods.map((f: any) => f.source || 'Estimativa'))],
+          confianca_media: avgConfidence,
+        }
+      },
       isEstimated: hasEstimated,
       notes: aiResult.notes || "",
-      timestamp: new Date().toISOString(),
     };
 
     console.log("✅ Análise concluída:", {
