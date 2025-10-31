@@ -87,11 +87,8 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
       </Popover>
 
       <div className="relative w-full max-w-[600px] flex items-center justify-center">
-        {/* Background with theme-adaptive color */}
-        <div className="absolute inset-0 bg-gradient-to-b from-muted/30 to-muted/10 rounded-lg" />
-        
-        {/* Body Image */}
-        <div className="relative flex items-center justify-center transition-all duration-300 ease-in-out z-10">
+        {/* Body Image - transparent background adapts to theme */}
+        <div className="relative flex items-center justify-center transition-all duration-300 ease-in-out">
           <img
             src={view === "front" ? bodyFrontWorkout : bodyBackWorkout}
             alt={view === "front" ? "Vista frontal do corpo" : "Vista traseira do corpo"}
