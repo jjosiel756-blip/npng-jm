@@ -27,6 +27,7 @@ interface MuscleLabel {
   right?: string;
   fontSize?: number;
   lineWidth?: number;
+  pointSide?: "left" | "right";
 }
 
 const frontLabels: MuscleLabel[] = [
@@ -91,6 +92,16 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
         ? { ...label, side: label.side === "left" ? "right" : "left" }
         : label
     ));
+  };
+
+  const handleFlipPointSide = (muscle: string) => {
+    setLabels(prev => prev.map(label => {
+      if (label.muscle === muscle) {
+        const currentPointSide = label.pointSide || label.side;
+        return { ...label, pointSide: currentPointSide === "left" ? "right" : "left" };
+      }
+      return label;
+    }));
   };
 
   const handleDragStart = (e: React.MouseEvent, muscle: string) => {
@@ -339,7 +350,9 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                     {label.name}
                   </div>
 
-                  <div className="relative flex items-center">
+                  <div className={`relative flex items-center ${
+                    (label.pointSide || label.side) !== label.side ? "flex-row-reverse" : ""
+                  }`}>
                     <div
                       className={`h-[1px] ${
                         selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
@@ -375,9 +388,22 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                           e.stopPropagation();
                           handleFlipSide(label.muscle);
                         }}
-                        title="Inverter lado"
+                        title="Inverter lado do label"
                       >
                         <ArrowLeftRight className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFlipPointSide(label.muscle);
+                        }}
+                        title="Inverter lado do ponto"
+                      >
+                        <ArrowLeftRight className="w-3 h-3" />
+                        <span className="text-[10px]">P</span>
                       </Button>
                       <div className="flex gap-0.5 border-l pl-1">
                         <span className="text-[10px] text-muted-foreground px-1 flex items-center">Texto</span>
