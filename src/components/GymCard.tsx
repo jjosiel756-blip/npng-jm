@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { cn } from "@/lib/utils";
 
 interface GymCardProps {
+  id?: string;
   title: string;
   description?: string;
   children?: React.ReactNode;
@@ -9,7 +10,7 @@ interface GymCardProps {
   className?: string;
 }
 
-export function GymCard({ title, description, children, variant = "default", className }: GymCardProps) {
+export function GymCard({ id, title, description, children, variant = "default", className }: GymCardProps) {
   const variantClasses = {
     fitness: "glass-card shadow-fitness hover:shadow-elevated transition-smooth",
     nutrition: "glass-card shadow-nutrition hover:shadow-elevated transition-smooth", 
@@ -17,7 +18,7 @@ export function GymCard({ title, description, children, variant = "default", cla
   };
 
   return (
-    <Card className={cn(variantClasses[variant], className)}>
+    <Card id={id} className={cn(variantClasses[variant], className)}>
       <CardHeader>
         <CardTitle className="text-foreground">{title}</CardTitle>
         {description && (
