@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import bodyFrontWorkout from "@/assets/body-front-workout-transparent.png";
 import bodyBackWorkout from "@/assets/body-back-workout-transparent.png";
+import { ExerciseList } from "@/components/ExerciseList";
 
 interface WorkoutMuscleMapProps {
   view: "front" | "back";
@@ -56,6 +58,8 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
   const [lineWidth, setLineWidth] = useState(40);
   const [draggedLabel, setDraggedLabel] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [showExercises, setShowExercises] = useState(false);
+  const [selectedMuscleForExercises, setSelectedMuscleForExercises] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
@@ -123,6 +127,18 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
 
   const handleDragEnd = () => {
     setDraggedLabel(null);
+  };
+
+  const handleLabelClick = (muscle: string) => {
+    if (isEditing) return;
+    onMuscleSelect(muscle);
+    setSelectedMuscleForExercises(muscle);
+    setShowExercises(true);
+  };
+
+  const getMuscleName = (muscle: string) => {
+    const label = labels.find(l => l.muscle === muscle);
+    return label ? label.name : muscle;
   };
 
   return (
@@ -225,7 +241,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 left: label.side === "left" && label.left ? label.left : undefined,
                 right: label.side === "right" && label.right ? label.right : undefined
               }}
-              onClick={() => !isEditing && onMuscleSelect(label.muscle)}
+              onClick={() => handleLabelClick(label.muscle)}
               onDoubleClick={() => isEditing && handleFlipSide(label.muscle)}
               onMouseDown={(e) => handleDragStart(e, label.muscle)}
             >
@@ -261,6 +277,22 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
           ))}
         </div>
       </div>
+
+      {/* Exercise Modal */}
+      <Dialog open={showExercises} onOpenChange={setShowExercises}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>
+              Exercícios para {selectedMuscleForExercises && getMuscleName(selectedMuscleForExercises)}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto flex-1 pr-2">
+            {selectedMuscleForExercises && (
+              <ExerciseList muscle={selectedMuscleForExercises as any} searchQuery="" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
