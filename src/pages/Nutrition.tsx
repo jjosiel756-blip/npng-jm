@@ -81,8 +81,8 @@ const Nutrition = () => {
         .from('meals')
         .select('*')
         .eq('user_id', session.session.user.id)
-        .gte('meal_time', today.toISOString())
-        .order('meal_time', { ascending: false });
+        .gte('meal_date', today.toISOString())
+        .order('meal_date', { ascending: false });
       
       if (error) {
         if (import.meta.env.DEV) {
@@ -231,25 +231,64 @@ const Nutrition = () => {
         throw new Error(functionError.message || "Erro ao analisar imagem");
       }
 
-      if (!functionData || !functionData.success) {
-        throw new Error(functionData?.error || "Resposta inválida da análise");
+      // Normalizar resposta da função (suporte a dois formatos)
+      let result: any;
+      if (functionData?.success) {
+        result = functionData;
+      } else if (functionData?.status === 'sucesso' && functionData?.analise) {
+        const foods = functionData.analise.alimentos.map((f: any) => {
+          const gramsMatch = String(f.quantity || '').match(/(\d+)\s*g/i);
+          const portionGrams = gramsMatch ? parseInt(gramsMatch[1]) : 100;
+          const confidenceStr = typeof f.confidence === 'string'
+            ? f.confidence
+            : f.confidence >= 0.85
+              ? 'alta'
+              : f.confidence >= 0.65
+                ? 'média'
+                : 'baixa';
+          return {
+            name: f.name,
+            portion: f.quantity,
+            portionGrams,
+            confidence: confidenceStr,
+            calories: f.nutrition?.calories ?? 0,
+            protein: f.nutrition?.protein ?? 0,
+            carbs: f.nutrition?.carbs ?? 0,
+            fat: f.nutrition?.fat ?? 0,
+            source: f.source || 'Estimativa',
+          };
+        });
+        result = {
+          success: true,
+          foods,
+          totals: {
+            calories: functionData.analise.total_refeicao.calories,
+            protein: functionData.analise.total_refeicao.protein,
+            carbs: functionData.analise.total_refeicao.carbs,
+            fat: functionData.analise.total_refeicao.fat,
+          },
+          isEstimated: functionData.isEstimated || false,
+          notes: functionData.notes || '',
+        };
+      } else {
+        throw new Error(functionData?.error || 'Resposta inválida da análise');
       }
 
       // Formatar resultados para exibição completa com todos os detalhes
-      const foodsList = functionData.foods
+      const foodsList = result.foods
         .map((food: any) => {
-          const confidence = food.confidence === "alta" ? "✓" : 
-                           food.confidence === "média" ? "~" : "?";
+          const confidence = food.confidence === 'alta' ? '✓' : 
+                           food.confidence === 'média' ? '~' : '?';
           // Incluir nome + descrição detalhada se disponível + porção
           const description = food.portion && food.portion !== `${food.portionGrams}g` 
             ? food.portion 
             : '';
           return `${confidence} ${food.name}${description ? ` ${description}` : ''} (aproximadamente ${food.portionGrams}g)`;
         })
-        .join(" ~ ");
+        .join(' ~ ');
 
       // Salvar refeição no banco de dados
-      const mealName = `Refeição: ${functionData.foods.map((f: any) => f.name).slice(0, 3).join(", ")}${functionData.foods.length > 3 ? '...' : ''}`;
+      const mealName = `Refeição: ${result.foods.map((f: any) => f.name).slice(0, 3).join(', ')}${result.foods.length > 3 ? '...' : ''}`;
       
       const { data: session } = await supabase.auth.getSession();
       
@@ -259,22 +298,22 @@ const Nutrition = () => {
           .insert({
             user_id: session.session.user.id,
             name: mealName,
-            calories: Math.round(functionData.totals.calories),
-            protein: functionData.totals.protein,
-            carbs: functionData.totals.carbs,
-            fat: functionData.totals.fat,
-            meal_time: new Date().toISOString(),
-            foods_details: functionData.foods,
-            is_estimated: functionData.isEstimated || false,
-            notes: functionData.notes || ""
+            calories: Math.round(result.totals.calories),
+            protein: result.totals.protein,
+            carbs: result.totals.carbs,
+            fat: result.totals.fat,
+            meal_date: new Date().toISOString(),
+            foods_details: result.foods,
+            is_estimated: result.isEstimated || false,
+            notes: result.notes || ''
           });
         
         if (saveError) {
-          console.error("Erro ao salvar refeição:", saveError);
+          console.error('Erro ao salvar refeição:', saveError);
           toast({
-            title: "Erro ao salvar",
-            description: "Não foi possível salvar a refeição no histórico.",
-            variant: "destructive",
+            title: 'Erro ao salvar',
+            description: 'Não foi possível salvar a refeição no histórico.',
+            variant: 'destructive',
           });
         } else {
           // Recarregar lista de refeições para atualizar o resumo
@@ -282,8 +321,8 @@ const Nutrition = () => {
           
           // Toast com análise completa e detalhada
           toast({
-            title: "Análise Concluída! 🎉",
-            description: `Alimentos identificados: ${foodsList} ✨ Total: ${Math.round(functionData.totals.calories)} kcal | Proteínas: ${Math.round(functionData.totals.protein * 10) / 10}g | Carbs: ${Math.round(functionData.totals.carbs * 10) / 10}g | Gorduras: ${Math.round(functionData.totals.fat * 10) / 10}g`,
+            title: 'Análise Concluída! 🎉',
+            description: `Alimentos identificados: ${foodsList} ✨ Total: ${Math.round(result.totals.calories)} kcal | Proteínas: ${Math.round(result.totals.protein * 10) / 10}g | Carbs: ${Math.round(result.totals.carbs * 10) / 10}g | Gorduras: ${Math.round(result.totals.fat * 10) / 10}g`,
             duration: 10000,
           });
         }
