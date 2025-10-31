@@ -298,6 +298,50 @@ All colors MUST be HSL.
       opacity: 0;
     }
   }
+
+  /* Estilos para imagens de exercícios com fundo transparente */
+  .transparent-image-container {
+    background: transparent !important;
+    position: relative;
+    display: inline-block;
+  }
+
+  .exercise-image-transparent {
+    background: transparent !important;
+    background-color: transparent !important;
+    
+    /* Remover qualquer fundo branco */
+    mix-blend-mode: multiply;
+    filter: contrast(1.1);
+    
+    /* Garantir que a imagem mostre o fundo da página */
+    opacity: 1;
+    border: none;
+    box-shadow: none;
+    
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Overlay para garantir transparência */
+  .transparency-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  /* Remover fundos de containers pais */
+  .exercise-demo-container,
+  .workout-illustration-wrapper,
+  .gif-display-wrapper {
+    background: transparent !important;
+    background-color: transparent !important;
+  }
 }
 
 
