@@ -426,14 +426,14 @@ const Nutrition = () => {
               description={`${getRemainingCalories()} kcal restantes`}
               className="relative"
             >
-              <div className="absolute top-6 right-6">
-                <NutritionGoalsDialog 
-                  currentGoals={nutritionGoals}
-                  onGoalsUpdated={handleGoalsUpdated}
-                  open={showGoalsDialog}
-                  onOpenChange={setShowGoalsDialog}
-                />
-              </div>
+              {showGoalsDialog && (
+                <div className="absolute top-6 right-6">
+                  <NutritionGoalsDialog 
+                    currentGoals={nutritionGoals}
+                    onGoalsUpdated={handleGoalsUpdated}
+                  />
+                </div>
+              )}
               <div className="space-y-6">
               {/* Calories Progress */}
               <div className="text-center">

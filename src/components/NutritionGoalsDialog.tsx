@@ -15,14 +15,10 @@ interface NutritionGoalsDialogProps {
     fat: number;
   };
   onGoalsUpdated: () => void;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 }
 
-export function NutritionGoalsDialog({ currentGoals, onGoalsUpdated, open: controlledOpen, onOpenChange }: NutritionGoalsDialogProps) {
-  const [internalOpen, setInternalOpen] = useState(false);
-  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
-  const setOpen = onOpenChange || setInternalOpen;
+export function NutritionGoalsDialog({ currentGoals, onGoalsUpdated }: NutritionGoalsDialogProps) {
+  const [open, setOpen] = useState(false);
   const [calories, setCalories] = useState(currentGoals.calories);
   const [protein, setProtein] = useState(currentGoals.protein);
   const [carbs, setCarbs] = useState(currentGoals.carbs);
