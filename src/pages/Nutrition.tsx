@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import NutriAI from "@/components/NutriAI";
 import { NutritionGoalsDialog } from "@/components/NutritionGoalsDialog";
 import { FoodPhotoAnalyzer } from "@/components/FoodPhotoAnalyzer";
+import { WeeklyReportDialog } from "@/components/WeeklyReportDialog";
 
 const Nutrition = () => {
   const [selectedMeal, setSelectedMeal] = useState<string | null>(null);
@@ -25,6 +26,8 @@ const Nutrition = () => {
     carbs: 220,
     fat: 60
   });
+  const [showGoalsDialog, setShowGoalsDialog] = useState(false);
+  const [showWeeklyReport, setShowWeeklyReport] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -339,6 +342,14 @@ const Nutrition = () => {
 
   const handleGoalsUpdated = () => {
     loadNutritionGoals();
+    setShowGoalsDialog(false);
+  };
+
+  const scrollToRecipes = () => {
+    const recipesSection = document.getElementById('recipes-section');
+    if (recipesSection) {
+      recipesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   };
 
   return (
@@ -415,12 +426,14 @@ const Nutrition = () => {
               description={`${getRemainingCalories()} kcal restantes`}
               className="relative"
             >
-              <div className="absolute top-6 right-6">
-                <NutritionGoalsDialog 
-                  currentGoals={nutritionGoals}
-                  onGoalsUpdated={handleGoalsUpdated}
-                />
-              </div>
+              {showGoalsDialog && (
+                <div className="absolute top-6 right-6">
+                  <NutritionGoalsDialog 
+                    currentGoals={nutritionGoals}
+                    onGoalsUpdated={handleGoalsUpdated}
+                  />
+                </div>
+              )}
               <div className="space-y-6">
               {/* Calories Progress */}
               <div className="text-center">
@@ -490,19 +503,19 @@ const Nutrition = () => {
             description="Adicione refeições rapidamente"
           >
             <div className="space-y-3">
-              <Button variant="nutrition" className="w-full">
+              <Button variant="nutrition" className="w-full" onClick={startCamera}>
                 <Plus className="w-4 h-4" />
                 Próxima Refeição
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={scrollToRecipes}>
                 <Utensils className="w-4 h-4" />
                 Receitas Sugeridas
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={() => setShowGoalsDialog(true)}>
                 <Target className="w-4 h-4" />
                 Ajustar Metas
               </Button>
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full" onClick={() => setShowWeeklyReport(true)}>
                 <TrendingUp className="w-4 h-4" />
                 Relatório Semanal
               </Button>
@@ -630,6 +643,7 @@ const Nutrition = () => {
 
         {/* Meal Suggestions */}
         <GymCard
+          id="recipes-section"
           title="Sugestões Personalizadas"
           description="Baseado nos seus objetivos e preferências"
         >
@@ -776,6 +790,12 @@ const Nutrition = () => {
       </div>
       
       <NutriAI />
+      
+      {/* Weekly Report Dialog */}
+      <WeeklyReportDialog 
+        open={showWeeklyReport} 
+        onOpenChange={setShowWeeklyReport}
+      />
     </Layout>
   );
 };
