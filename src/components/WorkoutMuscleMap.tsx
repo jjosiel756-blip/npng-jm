@@ -25,6 +25,7 @@ interface MuscleLabel {
   left?: string;
   right?: string;
   fontSize?: number;
+  lineWidth?: number;
 }
 
 const frontLabels: MuscleLabel[] = [
@@ -156,6 +157,22 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     setLabels(prev => prev.map(label => 
       label.muscle === muscle 
         ? { ...label, fontSize: Math.max(10, (label.fontSize || labelSize) - 1) }
+        : label
+    ));
+  };
+
+  const handleIncreaseLineWidth = (muscle: string) => {
+    setLabels(prev => prev.map(label => 
+      label.muscle === muscle 
+        ? { ...label, lineWidth: (label.lineWidth || lineWidth) + 5 }
+        : label
+    ));
+  };
+
+  const handleDecreaseLineWidth = (muscle: string) => {
+    setLabels(prev => prev.map(label => 
+      label.muscle === muscle 
+        ? { ...label, lineWidth: Math.max(20, (label.lineWidth || lineWidth) - 5) }
         : label
     ));
   };
@@ -292,7 +309,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                       className={`h-[1px] ${
                         selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
                       } transition-colors duration-200`}
-                      style={{ width: `${lineWidth}px` }}
+                      style={{ width: `${label.lineWidth || lineWidth}px` }}
                     />
                     <div
                       className={`w-2 h-2 rounded-full ${
@@ -305,7 +322,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 {/* Edit Controls */}
                 {isEditing && editingLabel === label.muscle && (
                   <Card className="p-2 mt-1 shadow-lg z-50 bg-background/95 backdrop-blur">
-                    <div className="flex gap-1 items-center">
+                    <div className="flex gap-1 items-center flex-wrap">
                       <Button
                         size="sm"
                         variant="ghost"
@@ -319,6 +336,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                         <ArrowLeftRight className="w-3 h-3" />
                       </Button>
                       <div className="flex gap-0.5 border-l pl-1">
+                        <span className="text-[10px] text-muted-foreground px-1 flex items-center">Texto</span>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -331,7 +349,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="text-xs px-1 flex items-center">
+                        <span className="text-xs px-1 flex items-center min-w-[20px] justify-center">
                           {label.fontSize || labelSize}
                         </span>
                         <Button
@@ -343,6 +361,36 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                             handleIncreaseFontSize(label.muscle);
                           }}
                           title="Aumentar texto"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <div className="flex gap-0.5 border-l pl-1">
+                        <span className="text-[10px] text-muted-foreground px-1 flex items-center">Linha</span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDecreaseLineWidth(label.muscle);
+                          }}
+                          title="Diminuir linha"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                        <span className="text-xs px-1 flex items-center min-w-[20px] justify-center">
+                          {label.lineWidth || lineWidth}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleIncreaseLineWidth(label.muscle);
+                          }}
+                          title="Aumentar linha"
                         >
                           <Plus className="w-3 h-3" />
                         </Button>
