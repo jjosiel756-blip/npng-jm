@@ -3,9 +3,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Search, Timer, Flame, Trophy } from "lucide-react";
+import { Search, Timer, Flame, Trophy, RotateCw } from "lucide-react";
 import { Layout } from "@/components/Layout";
 import { WorkoutCard } from "@/components/WorkoutCard";
+import { WorkoutMuscleMap } from "@/components/WorkoutMuscleMap";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -38,6 +39,8 @@ export default function Workouts() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [workoutHistory, setWorkoutHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedMuscle, setSelectedMuscle] = useState<string | null>(null);
+  const [view, setView] = useState<"front" | "back">("front");
 
   useEffect(() => {
     loadWorkouts();
@@ -74,6 +77,15 @@ export default function Workouts() {
         setWorkoutHistory(data);
       }
     }
+  };
+
+  const handleMuscleSelect = (muscle: string) => {
+    setSelectedMuscle(muscle === selectedMuscle ? null : muscle);
+  };
+
+  const handleRotate = () => {
+    setView(view === "front" ? "back" : "front");
+    setSelectedMuscle(null);
   };
 
   const filteredWorkouts = workouts.filter((workout) => {
@@ -120,6 +132,44 @@ export default function Workouts() {
             </Button>
           ))}
         </div>
+
+        {/* Muscle Map Selector */}
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Selecione o Grupo Muscular</CardTitle>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRotate}
+                className="gap-2"
+              >
+                <RotateCw className="w-4 h-4" />
+                Girar
+              </Button>
+            </div>
+            <CardDescription>
+              Clique em um grupo muscular para filtrar treinos específicos
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WorkoutMuscleMap
+              view={view}
+              selectedMuscle={selectedMuscle}
+              onMuscleSelect={handleMuscleSelect}
+            />
+            {selectedMuscle && (
+              <div className="mt-4 text-center">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedMuscle(null)}
+                >
+                  Limpar Seleção
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Workout History */}
         {workoutHistory.length > 0 && (
