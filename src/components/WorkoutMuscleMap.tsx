@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus } from "lucide-react";
+import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus, X, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
@@ -64,6 +65,8 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
   const [showExercises, setShowExercises] = useState(false);
   const [selectedMuscleForExercises, setSelectedMuscleForExercises] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState<string | null>(null);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newLabelData, setNewLabelData] = useState({ name: "", muscle: "", side: "left" as "left" | "right" });
 
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
@@ -183,6 +186,34 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     setEditingLabel(editingLabel === muscle ? null : muscle);
   };
 
+  const handleAddLabel = () => {
+    if (!newLabelData.name.trim() || !newLabelData.muscle.trim()) {
+      toast.error("Preencha nome e identificador do músculo");
+      return;
+    }
+
+    const newLabel: MuscleLabel = {
+      name: newLabelData.name,
+      muscle: newLabelData.muscle.toLowerCase().replace(/\s+/g, '_'),
+      side: newLabelData.side,
+      top: "50%",
+      fontSize: labelSize,
+      lineWidth: lineWidth
+    };
+
+    setLabels(prev => [...prev, newLabel]);
+    setNewLabelData({ name: "", muscle: "", side: "left" });
+    setShowAddDialog(false);
+    toast.success("Label adicionado! Não esqueça de salvar as posições.");
+  };
+
+  const handleRemoveLabel = (muscle: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setLabels(prev => prev.filter(label => label.muscle !== muscle));
+    setEditingLabel(null);
+    toast.success("Label removido! Não esqueça de salvar as posições.");
+  };
+
   return (
     <div className="relative w-full flex flex-col items-center justify-center py-8 gap-4">
       {/* Edit Controls */}
@@ -205,6 +236,10 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
             </Button>
             <Button variant="outline" size="sm" onClick={handleResetPositions}>
               Resetar
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowAddDialog(true)}>
+              <PlusCircle className="w-4 h-4" />
+              Adicionar Label
             </Button>
           </>
         )}
@@ -325,6 +360,15 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                     <div className="flex gap-1 items-center flex-wrap">
                       <Button
                         size="sm"
+                        variant="destructive"
+                        className="h-7 px-2"
+                        onClick={(e) => handleRemoveLabel(label.muscle, e)}
+                        title="Remover label"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        size="sm"
                         variant="ghost"
                         className="h-7 px-2"
                         onClick={(e) => {
@@ -416,6 +460,62 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
             {selectedMuscleForExercises && (
               <ExerciseList muscle={selectedMuscleForExercises as any} searchQuery="" />
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Label Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Adicionar Novo Label</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="label-name">Nome do Músculo</Label>
+              <Input
+                id="label-name"
+                placeholder="Ex: Deltoides"
+                value={newLabelData.name}
+                onChange={(e) => setNewLabelData(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="label-muscle">Identificador (usado para exercícios)</Label>
+              <Input
+                id="label-muscle"
+                placeholder="Ex: deltoids"
+                value={newLabelData.muscle}
+                onChange={(e) => setNewLabelData(prev => ({ ...prev, muscle: e.target.value }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Lado Inicial</Label>
+              <div className="flex gap-2">
+                <Button
+                  variant={newLabelData.side === "left" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewLabelData(prev => ({ ...prev, side: "left" }))}
+                >
+                  Esquerda
+                </Button>
+                <Button
+                  variant={newLabelData.side === "right" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setNewLabelData(prev => ({ ...prev, side: "right" }))}
+                >
+                  Direita
+                </Button>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end pt-4">
+              <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleAddLabel}>
+                Adicionar
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
