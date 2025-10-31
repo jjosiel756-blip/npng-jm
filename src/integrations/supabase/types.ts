@@ -110,7 +110,9 @@ export type Database = {
           carbs: number | null
           created_at: string
           fat: number | null
+          foods_details: Json | null
           id: string
+          is_estimated: boolean | null
           meal_date: string
           name: string
           notes: string | null
@@ -123,7 +125,9 @@ export type Database = {
           carbs?: number | null
           created_at?: string
           fat?: number | null
+          foods_details?: Json | null
           id?: string
+          is_estimated?: boolean | null
           meal_date?: string
           name: string
           notes?: string | null
@@ -136,7 +140,9 @@ export type Database = {
           carbs?: number | null
           created_at?: string
           fat?: number | null
+          foods_details?: Json | null
           id?: string
+          is_estimated?: boolean | null
           meal_date?: string
           name?: string
           notes?: string | null
