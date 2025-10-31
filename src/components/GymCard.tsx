@@ -7,9 +7,10 @@ interface GymCardProps {
   children?: React.ReactNode;
   variant?: "fitness" | "nutrition" | "default";
   className?: string;
+  id?: string;
 }
 
-export function GymCard({ title, description, children, variant = "default", className }: GymCardProps) {
+export function GymCard({ title, description, children, variant = "default", className, id }: GymCardProps) {
   const variantClasses = {
     fitness: "glass-card shadow-fitness hover:shadow-elevated transition-smooth",
     nutrition: "glass-card shadow-nutrition hover:shadow-elevated transition-smooth", 
@@ -17,7 +18,7 @@ export function GymCard({ title, description, children, variant = "default", cla
   };
 
   return (
-    <Card className={cn(variantClasses[variant], className)}>
+    <Card id={id} className={cn(variantClasses[variant], className)}>
       <CardHeader>
         <CardTitle className="text-foreground">{title}</CardTitle>
         {description && (
