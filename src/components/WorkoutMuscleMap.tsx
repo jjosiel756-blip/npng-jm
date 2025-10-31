@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { Settings, Save, Edit2 } from "lucide-react";
+import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import bodyFrontWorkout from "@/assets/body-front-workout-transparent.png";
 import bodyBackWorkout from "@/assets/body-back-workout-transparent.png";
@@ -23,6 +24,7 @@ interface MuscleLabel {
   top: string;
   left?: string;
   right?: string;
+  fontSize?: number;
 }
 
 const frontLabels: MuscleLabel[] = [
@@ -60,6 +62,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showExercises, setShowExercises] = useState(false);
   const [selectedMuscleForExercises, setSelectedMuscleForExercises] = useState<string | null>(null);
+  const [editingLabel, setEditingLabel] = useState<string | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
@@ -141,6 +144,28 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     return label ? label.name : muscle;
   };
 
+  const handleIncreaseFontSize = (muscle: string) => {
+    setLabels(prev => prev.map(label => 
+      label.muscle === muscle 
+        ? { ...label, fontSize: (label.fontSize || labelSize) + 1 }
+        : label
+    ));
+  };
+
+  const handleDecreaseFontSize = (muscle: string) => {
+    setLabels(prev => prev.map(label => 
+      label.muscle === muscle 
+        ? { ...label, fontSize: Math.max(10, (label.fontSize || labelSize) - 1) }
+        : label
+    ));
+  };
+
+  const handleToggleLabelEdit = (muscle: string, e: React.MouseEvent) => {
+    if (!isEditing) return;
+    e.stopPropagation();
+    setEditingLabel(editingLabel === muscle ? null : muscle);
+  };
+
   return (
     <div className="relative w-full flex flex-col items-center justify-center py-8 gap-4">
       {/* Edit Controls */}
@@ -204,8 +229,9 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
       </div>
 
       {isEditing && (
-        <div className="text-sm text-muted-foreground text-center">
-          Arraste os labels para reposicionar • Clique duas vezes para inverter o lado
+        <div className="text-sm text-muted-foreground text-center space-y-1">
+          <p>Arraste os labels para reposicionar</p>
+          <p className="text-xs">Clique no label para abrir controles de edição</p>
         </div>
       )}
 
@@ -241,37 +267,89 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 left: label.side === "left" && label.left ? label.left : undefined,
                 right: label.side === "right" && label.right ? label.right : undefined
               }}
-              onClick={() => handleLabelClick(label.muscle)}
-              onDoubleClick={() => isEditing && handleFlipSide(label.muscle)}
-              onMouseDown={(e) => handleDragStart(e, label.muscle)}
+              onClick={(e) => isEditing ? handleToggleLabelEdit(label.muscle, e) : handleLabelClick(label.muscle)}
+              onMouseDown={(e) => isEditing && handleDragStart(e, label.muscle)}
             >
-              <div className={`flex items-center ${label.side === "left" ? "flex-row" : "flex-row-reverse"} gap-1`}>
-                <div
-                  className={`font-medium px-2 py-1 whitespace-nowrap ${
-                    label.side === "left" ? "text-left" : "text-right"
-                  } ${
-                    selectedMuscle === label.muscle
-                      ? "font-bold text-primary"
-                      : "text-foreground group-hover:font-semibold group-hover:text-primary"
-                  } ${isEditing ? "bg-accent/20 rounded" : ""} transition-all duration-200`}
-                  style={{ fontSize: `${labelSize}px` }}
-                >
-                  {label.name}
+              <div className="space-y-1">
+                <div className={`flex items-center ${label.side === "left" ? "flex-row" : "flex-row-reverse"} gap-1`}>
+                  <div
+                    className={`font-medium px-2 py-1 whitespace-nowrap ${
+                      label.side === "left" ? "text-left" : "text-right"
+                    } ${
+                      selectedMuscle === label.muscle
+                        ? "font-bold text-primary"
+                        : "text-foreground group-hover:font-semibold group-hover:text-primary"
+                    } ${isEditing ? "bg-accent/20 rounded" : ""} ${
+                      editingLabel === label.muscle ? "ring-2 ring-primary" : ""
+                    } transition-all duration-200`}
+                    style={{ fontSize: `${label.fontSize || labelSize}px` }}
+                  >
+                    {label.name}
+                  </div>
+
+                  <div className="relative flex items-center">
+                    <div
+                      className={`h-[1px] ${
+                        selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
+                      } transition-colors duration-200`}
+                      style={{ width: `${lineWidth}px` }}
+                    />
+                    <div
+                      className={`w-2 h-2 rounded-full ${
+                        selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
+                      } transition-colors duration-200`}
+                    />
+                  </div>
                 </div>
 
-                <div className="relative flex items-center">
-                  <div
-                    className={`h-[1px] ${
-                      selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
-                    } transition-colors duration-200`}
-                    style={{ width: `${lineWidth}px` }}
-                  />
-                  <div
-                    className={`w-2 h-2 rounded-full ${
-                      selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
-                    } transition-colors duration-200`}
-                  />
-                </div>
+                {/* Edit Controls */}
+                {isEditing && editingLabel === label.muscle && (
+                  <Card className="p-2 mt-1 shadow-lg z-50 bg-background/95 backdrop-blur">
+                    <div className="flex gap-1 items-center">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleFlipSide(label.muscle);
+                        }}
+                        title="Inverter lado"
+                      >
+                        <ArrowLeftRight className="w-3 h-3" />
+                      </Button>
+                      <div className="flex gap-0.5 border-l pl-1">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDecreaseFontSize(label.muscle);
+                          }}
+                          title="Diminuir texto"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                        <span className="text-xs px-1 flex items-center">
+                          {label.fontSize || labelSize}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 w-7 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleIncreaseFontSize(label.muscle);
+                          }}
+                          title="Aumentar texto"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                )}
               </div>
             </div>
           ))}
