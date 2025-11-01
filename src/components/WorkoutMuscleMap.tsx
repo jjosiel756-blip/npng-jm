@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus, X, PlusCircle, GitBranch, Type } from "lucide-react";
+import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus, X, PlusCircle, GitBranch, Type, Slash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,7 @@ interface MuscleLabel {
   pointSide?: "left" | "right";
   lineType?: "straight" | "angled";
   hideLabel?: boolean;
+  hideLine?: boolean;
 }
 
 const frontLabels: MuscleLabel[] = [
@@ -118,6 +119,14 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     setLabels(prev => prev.map(label => 
       label.muscle === muscle 
         ? { ...label, hideLabel: !label.hideLabel }
+        : label
+    ));
+  };
+
+  const handleToggleLine = (muscle: string) => {
+    setLabels(prev => prev.map(label => 
+      label.muscle === muscle 
+        ? { ...label, hideLine: !label.hideLine }
         : label
     ));
   };
@@ -368,54 +377,56 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                     {label.name}
                   </div>
 
-                  <div className={`relative flex items-center ${
-                    (label.pointSide || label.side) !== label.side ? "flex-row-reverse" : ""
-                  }`}>
-                    {label.lineType === "angled" ? (
-                      // Linha em ângulo (formato L)
-                      <svg 
-                        width={label.lineWidth || lineWidth} 
-                        height="20" 
-                        className="overflow-visible"
-                        style={{ 
-                          transform: (label.pointSide || label.side) === "left" ? "scaleX(-1)" : "none"
-                        }}
-                      >
-                        <path
-                          d={`M 0,10 L ${((label.lineWidth || lineWidth) * 0.6)},10 L ${(label.lineWidth || lineWidth)},0`}
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="1"
-                          className={`${
-                            selectedMuscle === label.muscle ? "text-primary" : "text-muted-foreground group-hover:text-primary"
-                          } transition-colors duration-200`}
-                        />
-                        <circle
-                          cx={(label.lineWidth || lineWidth)}
-                          cy="0"
-                          r="2"
-                          className={`${
-                            selectedMuscle === label.muscle ? "fill-primary" : "fill-muted-foreground group-hover:fill-primary"
-                          } transition-colors duration-200`}
-                        />
-                      </svg>
-                    ) : (
-                      // Linha reta (padrão)
-                      <>
-                        <div
-                          className={`h-[1px] ${
-                            selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
-                          } transition-colors duration-200`}
-                          style={{ width: `${label.lineWidth || lineWidth}px` }}
-                        />
-                        <div
-                          className={`w-2 h-2 rounded-full ${
-                            selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
-                          } transition-colors duration-200`}
-                        />
-                      </>
-                    )}
-                  </div>
+                  {!label.hideLine && (
+                    <div className={`relative flex items-center ${
+                      (label.pointSide || label.side) !== label.side ? "flex-row-reverse" : ""
+                    }`}>
+                      {label.lineType === "angled" ? (
+                        // Linha em ângulo (formato L)
+                        <svg 
+                          width={label.lineWidth || lineWidth} 
+                          height="20" 
+                          className="overflow-visible"
+                          style={{ 
+                            transform: (label.pointSide || label.side) === "left" ? "scaleX(-1)" : "none"
+                          }}
+                        >
+                          <path
+                            d={`M 0,10 L ${((label.lineWidth || lineWidth) * 0.6)},10 L ${(label.lineWidth || lineWidth)},0`}
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1"
+                            className={`${
+                              selectedMuscle === label.muscle ? "text-primary" : "text-muted-foreground group-hover:text-primary"
+                            } transition-colors duration-200`}
+                          />
+                          <circle
+                            cx={(label.lineWidth || lineWidth)}
+                            cy="0"
+                            r="2"
+                            className={`${
+                              selectedMuscle === label.muscle ? "fill-primary" : "fill-muted-foreground group-hover:fill-primary"
+                            } transition-colors duration-200`}
+                          />
+                        </svg>
+                      ) : (
+                        // Linha reta (padrão)
+                        <>
+                          <div
+                            className={`h-[1px] ${
+                              selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
+                            } transition-colors duration-200`}
+                            style={{ width: `${label.lineWidth || lineWidth}px` }}
+                          />
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              selectedMuscle === label.muscle ? "bg-primary" : "bg-muted-foreground group-hover:bg-primary"
+                            } transition-colors duration-200`}
+                          />
+                        </>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {/* Edit Controls */}
@@ -467,6 +478,18 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                         title={`Tipo de linha: ${label.lineType === "angled" ? "Ângulo" : "Reta"}`}
                       >
                         <GitBranch className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={label.hideLine ? "default" : "ghost"}
+                        className="h-7 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleLine(label.muscle);
+                        }}
+                        title={label.hideLine ? "Mostrar linha" : "Ocultar linha"}
+                      >
+                        <Slash className="w-3 h-3" />
                       </Button>
                       <Button
                         size="sm"
