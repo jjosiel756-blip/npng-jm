@@ -58,7 +58,8 @@ const backLabels: MuscleLabel[] = [
 
 export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: WorkoutMuscleMapProps) {
   const isMobile = useIsMobile();
-  const storageKey = `muscle-labels-${view}`;
+  // Chaves separadas para mobile e desktop
+  const storageKey = `muscle-labels-${view}-${isMobile ? 'mobile' : 'desktop'}`;
   const [labels, setLabels] = useState<MuscleLabel[]>(() => {
     const saved = localStorage.getItem(storageKey);
     return saved ? JSON.parse(saved) : (view === "front" ? frontLabels : backLabels);
@@ -77,7 +78,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
     setLabels(saved ? JSON.parse(saved) : (view === "front" ? frontLabels : backLabels));
-  }, [view]);
+  }, [view, storageKey]);
 
   const handleSavePositions = () => {
     localStorage.setItem(storageKey, JSON.stringify(labels));
