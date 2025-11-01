@@ -258,75 +258,87 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     <div className="relative w-full flex flex-col items-center justify-center py-8 gap-4">
       {/* Edit Controls - Hidden on Mobile */}
       {!isMobile && (
-        <div className="flex gap-2 flex-wrap justify-center">
-          <Button 
-            variant={isEditing ? "default" : "outline"} 
-            size="sm" 
-            className="gap-2"
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            <Edit2 className="w-4 h-4" />
-            {isEditing ? "Modo Edição Ativo" : "Ativar Edição"}
-          </Button>
+        <>
+          <div className="flex gap-2 flex-wrap justify-center">
+            <Button 
+              variant={isEditing ? "default" : "outline"} 
+              size="default"
+              className={`gap-2 ${isEditing ? 'animate-pulse' : ''}`}
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              <Edit2 className="w-4 h-4" />
+              {isEditing ? "Modo Editor Ativo" : "🎨 Ativar Modo Editor"}
+            </Button>
+
+            {isEditing && (
+              <>
+                <Button variant="outline" size="default" className="gap-2" onClick={handleSavePositions}>
+                  <Save className="w-4 h-4" />
+                  Salvar Posições
+                </Button>
+                <Button variant="outline" size="default" onClick={handleResetPositions}>
+                  Resetar
+                </Button>
+                <Button variant="outline" size="default" className="gap-2" onClick={() => setShowAddDialog(true)}>
+                  <PlusCircle className="w-4 h-4" />
+                  Adicionar Label
+                </Button>
+              </>
+            )}
+
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="default" className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  Ajustes Globais
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="label-size">Tamanho do Texto Padrão: {labelSize}px</Label>
+                    <Slider
+                      id="label-size"
+                      min={10}
+                      max={24}
+                      step={1}
+                      value={[labelSize]}
+                      onValueChange={(value) => setLabelSize(value[0])}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="line-width">Largura da Linha Padrão: {lineWidth}px</Label>
+                    <Slider
+                      id="line-width"
+                      min={20}
+                      max={100}
+                      step={5}
+                      value={[lineWidth]}
+                      onValueChange={(value) => setLineWidth(value[0])}
+                    />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
 
           {isEditing && (
-            <>
-              <Button variant="outline" size="sm" className="gap-2" onClick={handleSavePositions}>
-                <Save className="w-4 h-4" />
-                Salvar Posições
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleResetPositions}>
-                Resetar
-              </Button>
-              <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowAddDialog(true)}>
-                <PlusCircle className="w-4 h-4" />
-                Adicionar Label
-              </Button>
-            </>
-          )}
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Settings className="w-4 h-4" />
-                Ajustes
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="label-size">Tamanho do Texto: {labelSize}px</Label>
-                  <Slider
-                    id="label-size"
-                    min={10}
-                    max={20}
-                    step={1}
-                    value={[labelSize]}
-                    onValueChange={(value) => setLabelSize(value[0])}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="line-width">Largura da Linha: {lineWidth}px</Label>
-                  <Slider
-                    id="line-width"
-                    min={20}
-                    max={80}
-                    step={5}
-                    value={[lineWidth]}
-                    onValueChange={(value) => setLineWidth(value[0])}
-                  />
-                </div>
+            <Card className="bg-primary/5 border-primary/20 p-4 max-w-2xl">
+              <div className="text-sm space-y-2">
+                <p className="font-semibold text-primary flex items-center gap-2">
+                  <Edit2 className="w-4 h-4" />
+                  Como usar o Modo Editor:
+                </p>
+                <ul className="space-y-1 text-muted-foreground ml-4">
+                  <li>• <strong>Arrastar:</strong> Clique e segure em qualquer label para mover livremente em todas as direções</li>
+                  <li>• <strong>Editar Texto:</strong> Clique no label para abrir controles e ajustar tamanho do texto (+ / -)</li>
+                  <li>• <strong>Editar Linha:</strong> Use os controles do label para ajustar tamanho da linha conectora (+ / -)</li>
+                  <li>• <strong>Salvar:</strong> Não esqueça de clicar em "Salvar Posições" quando terminar</li>
+                </ul>
               </div>
-            </PopoverContent>
-          </Popover>
-        </div>
-      )}
-
-      {!isMobile && isEditing && (
-        <div className="text-sm text-muted-foreground text-center space-y-1">
-          <p>Arraste os labels para reposicionar</p>
-          <p className="text-xs">Clique no label para abrir controles de edição</p>
-        </div>
+            </Card>
+          )}
+        </>
       )}
 
       <div 
@@ -353,9 +365,9 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
               key={label.muscle}
               className={`absolute pointer-events-auto ${
                 !label.left && !label.right ? (label.side === "left" ? "left-0" : "right-0") : ""
-              } ${isEditing ? "cursor-move" : "cursor-pointer"} group ${
-                draggedLabel === label.muscle ? "z-50 opacity-80" : ""
-              }`}
+              } ${isEditing ? "cursor-move hover:scale-105" : "cursor-pointer"} group ${
+                draggedLabel === label.muscle ? "z-50 opacity-80 scale-110" : ""
+              } ${editingLabel === label.muscle ? "z-50" : ""} transition-all duration-200`}
               style={{ 
                 top: label.top,
                 left: label.side === "left" && label.left ? label.left : undefined,
@@ -374,7 +386,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                         ? "font-bold text-primary"
                         : "text-foreground group-hover:font-semibold group-hover:text-primary"
                     } ${isEditing && !label.hideLabel ? "bg-accent/20 rounded" : ""} ${
-                      editingLabel === label.muscle ? "ring-2 ring-primary" : ""
+                      editingLabel === label.muscle ? "ring-2 ring-primary animate-pulse bg-primary/10" : ""
                     } transition-all duration-200`}
                     style={{ fontSize: `${label.fontSize || labelSize}px` }}
                   >
@@ -435,17 +447,20 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
 
                 {/* Edit Controls */}
                 {isEditing && editingLabel === label.muscle && (
-                  <Card className="p-2 mt-1 shadow-lg z-50 bg-background/95 backdrop-blur">
-                    <div className="flex gap-1 items-center flex-wrap">
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        className="h-7 px-2"
-                        onClick={(e) => handleRemoveLabel(label.muscle, e)}
-                        title="Remover label"
-                      >
-                        <X className="w-3 h-3" />
-                      </Button>
+                  <Card className="p-3 mt-2 shadow-xl z-50 bg-primary/5 backdrop-blur border-2 border-primary/30">
+                    <div className="space-y-2">
+                      <div className="text-xs font-semibold text-primary mb-2">Controles de Edição</div>
+                      <div className="flex gap-1 items-center flex-wrap">
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="h-8 px-3"
+                          onClick={(e) => handleRemoveLabel(label.muscle, e)}
+                          title="Remover label"
+                        >
+                          <X className="w-3 h-3 mr-1" />
+                          Remover
+                        </Button>
                       <Button
                         size="sm"
                         variant="ghost"
@@ -507,65 +522,80 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                       >
                         <Type className="w-3 h-3" />
                       </Button>
-                      <div className="flex gap-0.5 border-l pl-1">
-                        <span className="text-[10px] text-muted-foreground px-1 flex items-center">Texto</span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 w-7 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDecreaseFontSize(label.muscle);
-                          }}
-                          title="Diminuir texto"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <span className="text-xs px-1 flex items-center min-w-[20px] justify-center">
-                          {label.fontSize || labelSize}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 w-7 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleIncreaseFontSize(label.muscle);
-                          }}
-                          title="Aumentar texto"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </Button>
                       </div>
-                      <div className="flex gap-0.5 border-l pl-1">
-                        <span className="text-[10px] text-muted-foreground px-1 flex items-center">Linha</span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 w-7 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDecreaseLineWidth(label.muscle);
-                          }}
-                          title="Diminuir linha"
-                        >
-                          <Minus className="w-3 h-3" />
-                        </Button>
-                        <span className="text-xs px-1 flex items-center min-w-[20px] justify-center">
-                          {label.lineWidth || lineWidth}
+                      
+                      {/* Tamanho do Texto */}
+                      <div className="flex gap-2 items-center justify-between bg-background/50 p-2 rounded border border-primary/20">
+                        <span className="text-xs font-medium text-primary flex items-center gap-1">
+                          <Type className="w-3 h-3" />
+                          Tamanho do Texto
                         </span>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 w-7 p-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleIncreaseLineWidth(label.muscle);
-                          }}
-                          title="Aumentar linha"
-                        >
-                          <Plus className="w-3 h-3" />
-                        </Button>
+                        <div className="flex gap-1 items-center">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDecreaseFontSize(label.muscle);
+                            }}
+                            title="Diminuir texto"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </Button>
+                          <span className="text-sm font-semibold px-2 min-w-[30px] text-center bg-background rounded">
+                            {label.fontSize || labelSize}px
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleIncreaseFontSize(label.muscle);
+                            }}
+                            title="Aumentar texto"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Tamanho da Linha */}
+                      <div className="flex gap-2 items-center justify-between bg-background/50 p-2 rounded border border-primary/20">
+                        <span className="text-xs font-medium text-primary flex items-center gap-1">
+                          <GitBranch className="w-3 h-3" />
+                          Tamanho da Linha
+                        </span>
+                        <div className="flex gap-1 items-center">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDecreaseLineWidth(label.muscle);
+                            }}
+                            title="Diminuir linha"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </Button>
+                          <span className="text-sm font-semibold px-2 min-w-[30px] text-center bg-background rounded">
+                            {label.lineWidth || lineWidth}px
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-8 w-8 p-0"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleIncreaseLineWidth(label.muscle);
+                            }}
+                            title="Aumentar linha"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </Card>
