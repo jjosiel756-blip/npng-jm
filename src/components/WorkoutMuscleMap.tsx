@@ -256,10 +256,9 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center py-8 gap-4">
-      {/* Edit Controls - Hidden on Mobile */}
-      {!isMobile && (
-        <>
-          <div className="flex gap-2 flex-wrap justify-center">
+      {/* Edit Controls */}
+      <>
+        <div className="flex gap-2 flex-wrap justify-center">
             <Button 
               variant={isEditing ? "default" : "outline"} 
               size="default"
@@ -338,10 +337,9 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
               </div>
             </Card>
           )}
-        </>
-      )}
+      </>
 
-      <div 
+      <div
         id="muscle-map-container"
         className="relative w-full max-w-[600px] flex items-center justify-center"
         onMouseMove={handleDragMove}
