@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus, X, PlusCircle, GitBranch } from "lucide-react";
+import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus, X, PlusCircle, GitBranch, Type } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,7 @@ interface MuscleLabel {
   lineWidth?: number;
   pointSide?: "left" | "right";
   lineType?: "straight" | "angled";
+  hideText?: boolean;
 }
 
 const frontLabels: MuscleLabel[] = [
@@ -109,6 +110,14 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     setLabels(prev => prev.map(label => 
       label.muscle === muscle 
         ? { ...label, lineType: label.lineType === "angled" ? "straight" : "angled" }
+        : label
+    ));
+  };
+
+  const handleToggleText = (muscle: string) => {
+    setLabels(prev => prev.map(label => 
+      label.muscle === muscle 
+        ? { ...label, hideText: !label.hideText }
         : label
     ));
   };
@@ -344,20 +353,22 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
             >
               <div className="space-y-1">
                 <div className={`flex items-center ${label.side === "left" ? "flex-row" : "flex-row-reverse"} gap-1`}>
-                  <div
-                    className={`font-medium px-2 py-1 whitespace-nowrap ${
-                      label.side === "left" ? "text-left" : "text-right"
-                    } ${
-                      selectedMuscle === label.muscle
-                        ? "font-bold text-primary"
-                        : "text-foreground group-hover:font-semibold group-hover:text-primary"
-                    } ${isEditing ? "bg-accent/20 rounded" : ""} ${
-                      editingLabel === label.muscle ? "ring-2 ring-primary" : ""
-                    } transition-all duration-200`}
-                    style={{ fontSize: `${label.fontSize || labelSize}px` }}
-                  >
-                    {label.name}
-                  </div>
+                  {!label.hideText && (
+                    <div
+                      className={`font-medium px-2 py-1 whitespace-nowrap ${
+                        label.side === "left" ? "text-left" : "text-right"
+                      } ${
+                        selectedMuscle === label.muscle
+                          ? "font-bold text-primary"
+                          : "text-foreground group-hover:font-semibold group-hover:text-primary"
+                      } ${isEditing ? "bg-accent/20 rounded" : ""} ${
+                        editingLabel === label.muscle ? "ring-2 ring-primary" : ""
+                      } transition-all duration-200`}
+                      style={{ fontSize: `${label.fontSize || labelSize}px` }}
+                    >
+                      {label.name}
+                    </div>
+                  )}
 
                   <div className={`relative flex items-center ${
                     (label.pointSide || label.side) !== label.side ? "flex-row-reverse" : ""
@@ -458,6 +469,18 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                         title={`Tipo de linha: ${label.lineType === "angled" ? "Ângulo" : "Reta"}`}
                       >
                         <GitBranch className="w-3 h-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-7 px-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleText(label.muscle);
+                        }}
+                        title={label.hideText ? "Mostrar texto" : "Ocultar texto"}
+                      >
+                        <Type className="w-3 h-3" />
                       </Button>
                       <div className="flex gap-0.5 border-l pl-1">
                         <span className="text-[10px] text-muted-foreground px-1 flex items-center">Texto</span>
