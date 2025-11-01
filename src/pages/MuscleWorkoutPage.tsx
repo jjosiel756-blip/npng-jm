@@ -351,6 +351,25 @@ const muscleWorkoutData: Record<string, {
         { name: "Straight Arm Pushdown", sets: "3x15" },
       ]},
     ]
+  },
+  adutores: {
+    title: "Foco em Adutores",
+    description: "Programa completo para fortalecimento e tonificação dos adutores. Exercícios focados na parte interna das coxas para força e estabilidade.",
+    tags: ["Adutores", "Força", "Hipertrofia"],
+    days: [
+      { day: "Dia 1 - Fundamentos", exercises: [
+        { name: "Exercício Principal 1", sets: "4x12" },
+        { name: "Exercício Principal 2", sets: "4x10" },
+        { name: "Exercício Auxiliar 1", sets: "3x15" },
+        { name: "Exercício Auxiliar 2", sets: "3x12" },
+        { name: "Exercício de Finalização", sets: "4x20" },
+      ]},
+      { day: "Dia 2 - Força", exercises: [
+        { name: "Exercício Composto 1", sets: "5x5" },
+        { name: "Exercício Composto 2", sets: "4x8" },
+        { name: "Exercício Isolado 1", sets: "4x12" },
+      ]},
+    ]
   }
 };
 
@@ -476,36 +495,35 @@ export default function MuscleWorkoutPage() {
         {/* Exercise Days */}
         <div className="space-y-6">
           {workoutData.days.map((day, dayIndex) => (
-            <Card key={dayIndex} className="overflow-hidden">
+            <Card key={dayIndex} className="overflow-hidden border border-border/50">
               <CardContent className="p-0">
                 {/* Day Header */}
-                <div className="bg-gradient-to-r from-primary/10 to-accent/10 p-4 border-b">
-                  <h3 className="font-semibold text-lg">{day.day}</h3>
+                <div className="bg-muted/30 px-4 py-3">
+                  <h3 className="font-semibold text-base">{day.day}</h3>
                 </div>
 
                 {/* Exercise List */}
-                <div className="divide-y">
+                <div className="divide-y divide-border/50">
                   {day.exercises.map((exercise, exerciseIndex) => (
-                    <div
+                    <button
                       key={exerciseIndex}
-                      className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors"
+                      className="w-full p-3 flex items-center gap-3 hover:bg-muted/50 transition-colors text-left"
+                      onClick={() => {/* Pode adicionar navegação para detalhes do exercício aqui */}}
                     >
-                      <div className="flex items-center gap-4">
-                        {/* Placeholder for exercise image */}
-                        <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center flex-shrink-0">
-                          <Play className="w-6 h-6 text-primary" />
-                        </div>
-                        
-                        <div>
-                          <p className="font-medium">{exercise.name}</p>
-                          {exercise.sets && (
-                            <p className="text-sm text-muted-foreground">
-                              {exercise.sets}
-                            </p>
-                          )}
-                        </div>
+                      {/* Play Button Icon */}
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Play className="w-5 h-5 text-primary fill-primary" />
                       </div>
-                    </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm">{exercise.name}</p>
+                        {exercise.sets && (
+                          <p className="text-xs text-orange-600 font-medium mt-0.5">
+                            {exercise.sets}
+                          </p>
+                        )}
+                      </div>
+                    </button>
                   ))}
                 </div>
               </CardContent>
@@ -514,14 +532,14 @@ export default function MuscleWorkoutPage() {
         </div>
 
         {/* Floating Start Button */}
-        <div className="fixed bottom-20 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent pointer-events-none">
+        <div className="fixed bottom-20 left-0 right-0 px-4 pb-4 bg-gradient-to-t from-background via-background/95 to-transparent pointer-events-none z-10">
           <div className="max-w-7xl mx-auto pointer-events-auto">
             <Button
               size="lg"
               onClick={handleStartWorkout}
-              className="w-full h-14 text-lg font-semibold shadow-xl"
+              className="w-full h-14 text-base font-semibold shadow-lg bg-primary hover:bg-primary/90"
             >
-              <Play className="w-5 h-5 mr-2" />
+              <Play className="w-5 h-5 mr-2 fill-current" />
               Iniciar Treino
             </Button>
           </div>
