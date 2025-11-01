@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import bodyFrontWorkout from "@/assets/body-front-workout-transparent.png";
 import bodyBackWorkout from "@/assets/body-back-workout-transparent.png";
 import { ExerciseList } from "@/components/ExerciseList";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface WorkoutMuscleMapProps {
   view: "front" | "back";
@@ -56,6 +57,7 @@ const backLabels: MuscleLabel[] = [
 ];
 
 export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: WorkoutMuscleMapProps) {
+  const isMobile = useIsMobile();
   const storageKey = `muscle-labels-${view}`;
   const [labels, setLabels] = useState<MuscleLabel[]>(() => {
     const saved = localStorage.getItem(storageKey);
@@ -254,71 +256,73 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center py-8 gap-4">
-      {/* Edit Controls */}
-      <div className="flex gap-2 flex-wrap justify-center">
-        <Button 
-          variant={isEditing ? "default" : "outline"} 
-          size="sm" 
-          className="gap-2"
-          onClick={() => setIsEditing(!isEditing)}
-        >
-          <Edit2 className="w-4 h-4" />
-          {isEditing ? "Modo Edição Ativo" : "Ativar Edição"}
-        </Button>
+      {/* Edit Controls - Hidden on Mobile */}
+      {!isMobile && (
+        <div className="flex gap-2 flex-wrap justify-center">
+          <Button 
+            variant={isEditing ? "default" : "outline"} 
+            size="sm" 
+            className="gap-2"
+            onClick={() => setIsEditing(!isEditing)}
+          >
+            <Edit2 className="w-4 h-4" />
+            {isEditing ? "Modo Edição Ativo" : "Ativar Edição"}
+          </Button>
 
-        {isEditing && (
-          <>
-            <Button variant="outline" size="sm" className="gap-2" onClick={handleSavePositions}>
-              <Save className="w-4 h-4" />
-              Salvar Posições
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleResetPositions}>
-              Resetar
-            </Button>
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowAddDialog(true)}>
-              <PlusCircle className="w-4 h-4" />
-              Adicionar Label
-            </Button>
-          </>
-        )}
+          {isEditing && (
+            <>
+              <Button variant="outline" size="sm" className="gap-2" onClick={handleSavePositions}>
+                <Save className="w-4 h-4" />
+                Salvar Posições
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleResetPositions}>
+                Resetar
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => setShowAddDialog(true)}>
+                <PlusCircle className="w-4 h-4" />
+                Adicionar Label
+              </Button>
+            </>
+          )}
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Settings className="w-4 h-4" />
-              Ajustes
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="label-size">Tamanho do Texto: {labelSize}px</Label>
-                <Slider
-                  id="label-size"
-                  min={10}
-                  max={20}
-                  step={1}
-                  value={[labelSize]}
-                  onValueChange={(value) => setLabelSize(value[0])}
-                />
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Settings className="w-4 h-4" />
+                Ajustes
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="label-size">Tamanho do Texto: {labelSize}px</Label>
+                  <Slider
+                    id="label-size"
+                    min={10}
+                    max={20}
+                    step={1}
+                    value={[labelSize]}
+                    onValueChange={(value) => setLabelSize(value[0])}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="line-width">Largura da Linha: {lineWidth}px</Label>
+                  <Slider
+                    id="line-width"
+                    min={20}
+                    max={80}
+                    step={5}
+                    value={[lineWidth]}
+                    onValueChange={(value) => setLineWidth(value[0])}
+                  />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="line-width">Largura da Linha: {lineWidth}px</Label>
-                <Slider
-                  id="line-width"
-                  min={20}
-                  max={80}
-                  step={5}
-                  value={[lineWidth]}
-                  onValueChange={(value) => setLineWidth(value[0])}
-                />
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+            </PopoverContent>
+          </Popover>
+        </div>
+      )}
 
-      {isEditing && (
+      {!isMobile && isEditing && (
         <div className="text-sm text-muted-foreground text-center space-y-1">
           <p>Arraste os labels para reposicionar</p>
           <p className="text-xs">Clique no label para abrir controles de edição</p>
