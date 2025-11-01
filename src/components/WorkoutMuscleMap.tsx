@@ -29,7 +29,7 @@ interface MuscleLabel {
   lineWidth?: number;
   pointSide?: "left" | "right";
   lineType?: "straight" | "angled";
-  hideText?: boolean;
+  hideLabel?: boolean;
 }
 
 const frontLabels: MuscleLabel[] = [
@@ -114,10 +114,10 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     ));
   };
 
-  const handleToggleText = (muscle: string) => {
+  const handleToggleLabel = (muscle: string) => {
     setLabels(prev => prev.map(label => 
       label.muscle === muscle 
-        ? { ...label, hideText: !label.hideText }
+        ? { ...label, hideLabel: !label.hideLabel }
         : label
     ));
   };
@@ -342,7 +342,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 !label.left && !label.right ? (label.side === "left" ? "left-0" : "right-0") : ""
               } ${isEditing ? "cursor-move" : "cursor-pointer"} group ${
                 draggedLabel === label.muscle ? "z-50 opacity-80" : ""
-              }`}
+              } ${label.hideLabel && !isEditing ? "hidden" : ""}`}
               style={{ 
                 top: label.top,
                 left: label.side === "left" && label.left ? label.left : undefined,
@@ -353,22 +353,20 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
             >
               <div className="space-y-1">
                 <div className={`flex items-center ${label.side === "left" ? "flex-row" : "flex-row-reverse"} gap-1`}>
-                  {!label.hideText && (
-                    <div
-                      className={`font-medium px-2 py-1 whitespace-nowrap ${
-                        label.side === "left" ? "text-left" : "text-right"
-                      } ${
-                        selectedMuscle === label.muscle
-                          ? "font-bold text-primary"
-                          : "text-foreground group-hover:font-semibold group-hover:text-primary"
-                      } ${isEditing ? "bg-accent/20 rounded" : ""} ${
-                        editingLabel === label.muscle ? "ring-2 ring-primary" : ""
-                      } transition-all duration-200`}
-                      style={{ fontSize: `${label.fontSize || labelSize}px` }}
-                    >
-                      {label.name}
-                    </div>
-                  )}
+                  <div
+                    className={`font-medium px-2 py-1 whitespace-nowrap ${
+                      label.side === "left" ? "text-left" : "text-right"
+                    } ${
+                      selectedMuscle === label.muscle
+                        ? "font-bold text-primary"
+                        : "text-foreground group-hover:font-semibold group-hover:text-primary"
+                    } ${isEditing ? "bg-accent/20 rounded" : ""} ${
+                      editingLabel === label.muscle ? "ring-2 ring-primary" : ""
+                    } transition-all duration-200`}
+                    style={{ fontSize: `${label.fontSize || labelSize}px` }}
+                  >
+                    {label.name}
+                  </div>
 
                   <div className={`relative flex items-center ${
                     (label.pointSide || label.side) !== label.side ? "flex-row-reverse" : ""
@@ -472,13 +470,13 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                       </Button>
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant={label.hideLabel ? "default" : "ghost"}
                         className="h-7 px-2"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggleText(label.muscle);
+                          handleToggleLabel(label.muscle);
                         }}
-                        title={label.hideText ? "Mostrar texto" : "Ocultar texto"}
+                        title={label.hideLabel ? "Mostrar label" : "Ocultar label"}
                       >
                         <Type className="w-3 h-3" />
                       </Button>
