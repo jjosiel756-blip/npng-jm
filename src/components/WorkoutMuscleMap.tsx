@@ -257,88 +257,90 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center py-8 gap-4">
-      {/* Edit Controls */}
-      <>
-        <div className="flex gap-2 flex-wrap justify-center">
-            <Button 
-              variant={isEditing ? "default" : "outline"} 
-              size="default"
-              className={`gap-2 ${isEditing ? 'animate-pulse' : ''}`}
-              onClick={() => setIsEditing(!isEditing)}
-            >
-              <Edit2 className="w-4 h-4" />
-              {isEditing ? "Modo Editor Ativo" : "🎨 Ativar Modo Editor"}
-            </Button>
+      {/* Edit Controls - Apenas Desktop */}
+      {!isMobile && (
+        <>
+          <div className="flex gap-2 flex-wrap justify-center">
+              <Button 
+                variant={isEditing ? "default" : "outline"} 
+                size="default"
+                className={`gap-2 ${isEditing ? 'animate-pulse' : ''}`}
+                onClick={() => setIsEditing(!isEditing)}
+              >
+                <Edit2 className="w-4 h-4" />
+                {isEditing ? "Modo Editor Ativo" : "🎨 Ativar Modo Editor"}
+              </Button>
+
+              {isEditing && (
+                <>
+                  <Button variant="outline" size="default" className="gap-2" onClick={handleSavePositions}>
+                    <Save className="w-4 h-4" />
+                    Salvar Posições
+                  </Button>
+                  <Button variant="outline" size="default" onClick={handleResetPositions}>
+                    Resetar
+                  </Button>
+                  <Button variant="outline" size="default" className="gap-2" onClick={() => setShowAddDialog(true)}>
+                    <PlusCircle className="w-4 h-4" />
+                    Adicionar Label
+                  </Button>
+                </>
+              )}
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="default" className="gap-2">
+                    <Settings className="w-4 h-4" />
+                    Ajustes Globais
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="label-size">Tamanho do Texto Padrão: {labelSize}px</Label>
+                      <Slider
+                        id="label-size"
+                        min={10}
+                        max={24}
+                        step={1}
+                        value={[labelSize]}
+                        onValueChange={(value) => setLabelSize(value[0])}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="line-width">Largura da Linha Padrão: {lineWidth}px</Label>
+                      <Slider
+                        id="line-width"
+                        min={20}
+                        max={100}
+                        step={5}
+                        value={[lineWidth]}
+                        onValueChange={(value) => setLineWidth(value[0])}
+                      />
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
 
             {isEditing && (
-              <>
-                <Button variant="outline" size="default" className="gap-2" onClick={handleSavePositions}>
-                  <Save className="w-4 h-4" />
-                  Salvar Posições
-                </Button>
-                <Button variant="outline" size="default" onClick={handleResetPositions}>
-                  Resetar
-                </Button>
-                <Button variant="outline" size="default" className="gap-2" onClick={() => setShowAddDialog(true)}>
-                  <PlusCircle className="w-4 h-4" />
-                  Adicionar Label
-                </Button>
-              </>
-            )}
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="default" className="gap-2">
-                  <Settings className="w-4 h-4" />
-                  Ajustes Globais
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="label-size">Tamanho do Texto Padrão: {labelSize}px</Label>
-                    <Slider
-                      id="label-size"
-                      min={10}
-                      max={24}
-                      step={1}
-                      value={[labelSize]}
-                      onValueChange={(value) => setLabelSize(value[0])}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="line-width">Largura da Linha Padrão: {lineWidth}px</Label>
-                    <Slider
-                      id="line-width"
-                      min={20}
-                      max={100}
-                      step={5}
-                      value={[lineWidth]}
-                      onValueChange={(value) => setLineWidth(value[0])}
-                    />
-                  </div>
+              <Card className="bg-primary/5 border-primary/20 p-4 max-w-2xl">
+                <div className="text-sm space-y-2">
+                  <p className="font-semibold text-primary flex items-center gap-2">
+                    <Edit2 className="w-4 h-4" />
+                    Como usar o Modo Editor:
+                  </p>
+                  <ul className="space-y-1 text-muted-foreground ml-4">
+                    <li>• <strong>Arrastar:</strong> Clique e segure em qualquer label para mover livremente em todas as direções</li>
+                    <li>• <strong>Editar Texto:</strong> Clique no label para abrir controles e ajustar tamanho do texto (+ / -)</li>
+                    <li>• <strong>Editar Linha:</strong> Use os controles do label para ajustar tamanho da linha conectora (+ / -)</li>
+                    <li>• <strong>Salvar:</strong> Não esqueça de clicar em "Salvar Posições" quando terminar</li>
+                  </ul>
                 </div>
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {isEditing && (
-            <Card className="bg-primary/5 border-primary/20 p-4 max-w-2xl">
-              <div className="text-sm space-y-2">
-                <p className="font-semibold text-primary flex items-center gap-2">
-                  <Edit2 className="w-4 h-4" />
-                  Como usar o Modo Editor:
-                </p>
-                <ul className="space-y-1 text-muted-foreground ml-4">
-                  <li>• <strong>Arrastar:</strong> Clique e segure em qualquer label para mover livremente em todas as direções</li>
-                  <li>• <strong>Editar Texto:</strong> Clique no label para abrir controles e ajustar tamanho do texto (+ / -)</li>
-                  <li>• <strong>Editar Linha:</strong> Use os controles do label para ajustar tamanho da linha conectora (+ / -)</li>
-                  <li>• <strong>Salvar:</strong> Não esqueça de clicar em "Salvar Posições" quando terminar</li>
-                </ul>
-              </div>
-            </Card>
-          )}
-      </>
+              </Card>
+            )}
+        </>
+      )}
 
       <div
         id="muscle-map-container"
@@ -372,8 +374,8 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 left: label.side === "left" && label.left ? label.left : undefined,
                 right: label.side === "right" && label.right ? label.right : undefined
               }}
-              onClick={(e) => isEditing ? handleToggleLabelEdit(label.muscle, e) : handleLabelClick(label.muscle)}
-              onMouseDown={(e) => isEditing && handleDragStart(e, label.muscle)}
+              onClick={(e) => (isEditing && !isMobile) ? handleToggleLabelEdit(label.muscle, e) : handleLabelClick(label.muscle)}
+              onMouseDown={(e) => (isEditing && !isMobile) && handleDragStart(e, label.muscle)}
             >
               <div className="space-y-1">
                 <div className={`flex items-center ${label.side === "left" ? "flex-row" : "flex-row-reverse"} gap-1`}>
