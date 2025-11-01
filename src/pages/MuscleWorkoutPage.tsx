@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ChevronDown, ChevronUp, Play } from "lucide-react";
 import { Layout } from "@/components/Layout";
+import { toast } from "sonner";
 
 // Mapeamento de nomes de músculos para dados de treino
 const muscleWorkoutData: Record<string, {
@@ -430,8 +431,32 @@ export default function MuscleWorkoutPage() {
   };
 
   const handleStartWorkout = () => {
-    // Navegar para a sessão de treino (pode ser implementado depois)
-    navigate("/workout-session");
+    // Create a simple workout structure from the exercises
+    const workout = {
+      id: `workout_${muscleName}`,
+      name: `Treino de ${muscleName}`,
+      focus: `Foco em ${muscleName}`,
+      duration: '60min',
+      exercises: workoutData.days.flatMap(day => day.exercises).slice(0, 5).map((ex, idx) => ({
+        id: idx + 1,
+        name: ex.name,
+        type: 'principal' as const,
+        sets: 3,
+        reps: '10-12',
+        restTime: 60,
+        animation: 'supino_reto',
+        instructions: [
+          'Execute o movimento com controle',
+          'Mantenha a postura correta',
+          'Respire adequadamente',
+          'Foque na contração muscular'
+        ],
+        muscleGroup: muscleName || 'geral',
+        equipment: ['halteres']
+      }))
+    };
+    
+    navigate('/workout-session', { state: { workout } });
   };
 
   return (

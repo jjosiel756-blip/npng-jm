@@ -150,13 +150,17 @@ const AnimatedExercise: React.FC<AnimatedExerciseProps> = ({ animation, size = '
     'agachamento_livre': <AgachamentoAnimation />,
     'crucifixo': <CrucifixoAnimation />,
     'remada_halter': <RemadaAnimation />,
+    'remada_barra': <RemadaAnimation />,
     'corrida': <CorridaAnimation />,
     'desenvolvimento': <DesenvolvimentoAnimation />,
+    'desenvolvimento_halteres': <DesenvolvimentoAnimation />,
     'rosca_direta': <RoscaAnimation />,
     'triceps_testa': <RoscaAnimation />,
     'barra_fixa': <RemadaAnimation />,
     'leg_press': <AgachamentoAnimation />,
     'elevacao_pelvica': <ElevacaoPelvicaAnimation />,
+    'elevacao_lateral': <DesenvolvimentoAnimation />,
+    'levantamento_terra': <AgachamentoAnimation />,
     'abdominal_supra': <AbdominalAnimation />,
     'aducao': <AgachamentoAnimation />
   };
