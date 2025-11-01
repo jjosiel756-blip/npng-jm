@@ -138,23 +138,36 @@ export function AuthDialog({ open, onOpenChange }: AuthDialogProps) {
           }
         }
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { error, data } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
+            emailRedirectTo: `${window.location.origin}/onboarding`,
           },
         });
 
         if (error) {
           if (error.message.includes("User already registered")) {
-            toast.error("Este email já está cadastrado");
+            toast.error("Este email já está cadastrado. Faça login.");
+          } else if (error.message.includes("Password should be at least")) {
+            toast.error("A senha deve ter no mínimo 6 caracteres");
           } else {
-            toast.error(error.message);
+            toast.error(`Erro ao criar conta: ${error.message}`);
           }
         } else {
-          toast.success("Conta criada! Verifique seu email para confirmar sua inscrição e fazer login.");
-          onOpenChange(false);
+          // Verifica se precisa confirmar email
+          if (data?.user?.identities?.length === 0) {
+            toast.error("Este email já está em uso. Tente fazer login.");
+          } else if (data?.user && !data?.session) {
+            toast.success(
+              "Conta criada com sucesso! Verifique seu email para confirmar e depois faça login.",
+              { duration: 6000 }
+            );
+          } else {
+            toast.success("Conta criada com sucesso! Redirecionando...");
+            onOpenChange(false);
+            navigate("/onboarding");
+          }
           setEmail("");
           setPassword("");
           setIsLogin(true); // Volta para tela de login
