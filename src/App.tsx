@@ -22,6 +22,8 @@ import ProteinGoalPage from "./pages/ProteinGoalPage";
 import WorkoutTimePage from "./pages/WorkoutTimePage";
 import WorkoutPlayer from "./pages/WorkoutPlayer";
 import MuscleWorkoutPage from "./pages/MuscleWorkoutPage";
+import ExerciseLibrary from "./pages/ExerciseLibrary";
+import ExerciseDetail from "./pages/ExerciseDetail";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +52,8 @@ const App = () => (
             <Route path="/stats/workout-time" element={<WorkoutTimePage />} />
             <Route path="/workout-player/:id" element={<WorkoutPlayer />} />
             <Route path="/workouts/muscle/:muscleName" element={<MuscleWorkoutPage />} />
+            <Route path="/exercise-library" element={<ExerciseLibrary />} />
+            <Route path="/exercise/:id" element={<ExerciseDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
