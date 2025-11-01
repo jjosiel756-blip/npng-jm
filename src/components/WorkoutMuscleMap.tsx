@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Settings, Save, Edit2, ArrowLeftRight, Plus, Minus, X, PlusCircle, GitBranch, Type, Slash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -57,6 +58,7 @@ const backLabels: MuscleLabel[] = [
 ];
 
 export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: WorkoutMuscleMapProps) {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   // Chaves separadas para mobile e desktop
   const storageKey = `muscle-labels-${view}-${isMobile ? 'mobile' : 'desktop'}`;
@@ -179,9 +181,13 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
 
   const handleLabelClick = (muscle: string) => {
     if (isEditing) return;
-    onMuscleSelect(muscle);
-    setSelectedMuscleForExercises(muscle);
-    setShowExercises(true);
+    
+    // Encontrar o label correspondente
+    const label = labels.find(l => l.muscle === muscle);
+    const muscleName = label ? label.name.toLowerCase() : muscle;
+    
+    // Navegar para a página de treino do músculo
+    navigate(`/workouts/muscle/${muscleName}`);
   };
 
   const getMuscleName = (muscle: string) => {
