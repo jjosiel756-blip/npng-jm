@@ -256,7 +256,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
   };
 
   return (
-    <div className="relative w-full flex flex-col items-center justify-center py-2 gap-4">
+    <div className="relative w-full flex flex-col items-center justify-center py-0 gap-2">
       {/* Edit Controls - Apenas Desktop */}
       {!isMobile && (
         <>
