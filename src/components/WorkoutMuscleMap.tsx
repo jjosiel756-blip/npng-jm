@@ -342,7 +342,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 !label.left && !label.right ? (label.side === "left" ? "left-0" : "right-0") : ""
               } ${isEditing ? "cursor-move" : "cursor-pointer"} group ${
                 draggedLabel === label.muscle ? "z-50 opacity-80" : ""
-              } ${label.hideLabel && !isEditing ? "hidden" : ""}`}
+              }`}
               style={{ 
                 top: label.top,
                 left: label.side === "left" && label.left ? label.left : undefined,
@@ -360,7 +360,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                       selectedMuscle === label.muscle
                         ? "font-bold text-primary"
                         : "text-foreground group-hover:font-semibold group-hover:text-primary"
-                    } ${isEditing ? "bg-accent/20 rounded" : ""} ${
+                    } ${isEditing && !label.hideLabel ? "bg-accent/20 rounded" : ""} ${
                       editingLabel === label.muscle ? "ring-2 ring-primary" : ""
                     } transition-all duration-200`}
                     style={{ fontSize: `${label.fontSize || labelSize}px` }}
