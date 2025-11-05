@@ -66,7 +66,10 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     const saved = localStorage.getItem(storageKey);
     return saved ? JSON.parse(saved) : (view === "front" ? frontLabels : backLabels);
   });
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(() => {
+    const savedEditMode = localStorage.getItem('muscle-map-edit-mode');
+    return savedEditMode === 'true';
+  });
   const [labelSize, setLabelSize] = useState(14);
   const [lineWidth, setLineWidth] = useState(40);
   const [draggedLabel, setDraggedLabel] = useState<string | null>(null);
@@ -81,6 +84,17 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
     const saved = localStorage.getItem(storageKey);
     setLabels(saved ? JSON.parse(saved) : (view === "front" ? frontLabels : backLabels));
   }, [view, storageKey]);
+
+  const toggleEditMode = () => {
+    const newEditMode = !isEditing;
+    setIsEditing(newEditMode);
+    localStorage.setItem('muscle-map-edit-mode', String(newEditMode));
+    if (newEditMode) {
+      toast.success("Modo Editor ativado!");
+    } else {
+      toast.info("Modo Editor desativado");
+    }
+  };
 
   const handleSavePositions = () => {
     localStorage.setItem(storageKey, JSON.stringify(labels));
@@ -271,7 +285,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 variant={isEditing ? "default" : "outline"} 
                 size="default"
                 className={`gap-2 ${isEditing ? 'animate-pulse' : ''}`}
-                onClick={() => setIsEditing(!isEditing)}
+                onClick={toggleEditMode}
               >
                 <Edit2 className="w-4 h-4" />
                 {isEditing ? "Modo Editor Ativo" : "🎨 Ativar Modo Editor"}
